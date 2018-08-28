@@ -16,14 +16,14 @@ import static Lexical_Analyzer.Token.*;
 
 /*Patterns*/
 keyword = (void|int|double|bool|string|class|interface|null|this|extends|implements|for|while|if|else|return|break|New|NewArray)
-decimal = ([0-9]+)
+decimal = ([1-9][0-9]*|0)
 identifier = ([a-zA-Z])([a-zA-Z_decimal]*)//{0,30}
 singleLineComment = \/\/.+
 multiLineComment = "/*" ~"*/"
 bool = true|false
 hexadecimal = 0[xX][decimala-fA-F]+
 double = [0-9]+\.[0-9]*([eE][+-]?[0-9]+)?
-string = \".*?\"
+string =  (\"([^(\")(\n)]|\\\")*\") //\".*?\"
 punctuationSymbols = (;|,|\.)
 error = (#|\´|\'|\_|\:|\$|\¿|\"|&|\||\~|\^|\`)
 twoCharOperators = (<=|>=|==|\!=|&&|\|\||\{\}|\[\]|\(\))

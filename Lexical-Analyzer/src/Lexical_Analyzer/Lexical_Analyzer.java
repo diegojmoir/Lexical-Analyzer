@@ -16,7 +16,7 @@ public class Lexical_Analyzer {
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		// TODO Auto-generated method stub
 		 String path = new File(".").getAbsolutePath();
-	     path = path.substring(0, path.length()-1) + "/src" + "/Lexical_Analyzer" + "/Lexer.flex";
+	     path = path.substring(0, path.length()-1)  + "/Lexical_Analyzer" + "/Lexer.flex";
 	     GenerateJflex(path); 
 	     CheckLex(new File("C:/Users/Diego Pérez Moir/Desktop/prueba.txt"));
 	}
@@ -59,7 +59,7 @@ public class Lexical_Analyzer {
             switch(token){
                 case IDENTIFIER:
                     if(text.length() >= 31){
-                        result += "ERROR la longitud de la cadena es demasiado larga: " +text.substring(0,30) + 
+                        result += "ERROR the length of the string it's too long: " +text.substring(0,30) + 
                                 " Linea: " + lineNumber + System.getProperty("line.separator");
                     }else{
                     	
@@ -95,7 +95,7 @@ public class Lexical_Analyzer {
                     result += getFormat(text, lineNumber, colNumber, (token + "      value:("+text+")")) + System.getProperty("line.separator");
                     break;
                 default:
-                    result += "ERROR unrecognized char: " + text + "      Line:" + lineNumber + System.getProperty("line.separator");
+                    result += "ERROR invalid char: " + text + "      Line:" + lineNumber + System.getProperty("line.separator");
                     break; 
             }
             
