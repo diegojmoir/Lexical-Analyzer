@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.Scanner;
 
 public class Lexical_Analyzer {
 
@@ -18,9 +19,20 @@ public class Lexical_Analyzer {
 		 String path = new File(".").getAbsolutePath();
 	     path = path.substring(0, path.length()-1)  + "/Lexical_Analyzer" + "/Lexer.flex";
 	     GenerateJflex(path); 
-	     CheckLex(new File("C:/Users/Diego Pérez Moir/Desktop/prueba.txt"));
+	     String minicPath = "";
+	     boolean flag = true;
+	     Scanner sc = new Scanner(System.in); 
+	     while(flag) {
+		     System.out.println("Insert the path of the file..");
+		     minicPath = sc.nextLine();     
+		    	
+	    	 if(new File(minicPath).exists()) {
+	    		 CheckLex(new File(minicPath));
+	    		 flag = false; 
+	    	 }
+	     }
 	}
-	
+
 	public static String getFormat(String text, int line, int column, String token) {
 		String result = text + "      Line:" + (line+1) + "      Columns:" + (column+1) + "-" + (column+text.length()) +  "      is: " + token;
         return result;
@@ -54,6 +66,7 @@ public class Lexical_Analyzer {
                 w.write(result);
                 
                 w.close();
+                System.out.println("The generated file is in:" + pathOut);
                 return; 
             }
             switch(token){
@@ -94,6 +107,13 @@ public class Lexical_Analyzer {
                 case STRING: 
                     result += getFormat(text, lineNumber, colNumber, (token + "      value:("+text+")")) + System.getProperty("line.separator");
                     break;
+                case DOUBLERROR:
+                	result += "ERROR invalid double number: " + text + "      Line:" + lineNumber + System.getProperty("line.separator");
+                	break; 
+                case COMMENTERROR: 
+                	result += "ERROR invalid multiline comment: " + text + "      Line: " + lineNumber + System.getProperty("line.separator");
+                	System.out.println("ERROR invalid multiline comment   Line: " + lineNumber);
+                	return;
                 default:
                     result += "ERROR invalid char: " + text + "      Line:" + lineNumber + System.getProperty("line.separator");
                     break; 

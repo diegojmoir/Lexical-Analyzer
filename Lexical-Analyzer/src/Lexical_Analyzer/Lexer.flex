@@ -29,7 +29,10 @@ error = (#|\´|\'|\_|\:|\$|\¿|\"|&|\||\~|\^|\`)
 twoCharOperators = (<=|>=|==|\!=|&&|\|\||\{\}|\[\]|\(\))
 oneCharOperators = (\+|\-|\*|\/|%|<|>|=|\!|\[|\]|\(|\)|\{|\})
 whiteSpace = \s
+doubleError = (\.)([0-9]+)
+commentError = (\/\*[^*]*)//|(("/*")~(\n))
 %%
+
 
 /*Constants*/
 {bool} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return BOOL;}
@@ -37,16 +40,22 @@ whiteSpace = \s
 {string} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return STRING;}
 {decimal}|{hexadecimal} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return INTEGER;}
 
+
 {keyword} {token = yytext(); lineNumber = yyline;  colNumber = yycolumn; return KEYWORD;}
 {identifier} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return IDENTIFIER;}
 {singleLineComment}|{multiLineComment} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return COMMENT;}
 
-/*Punctuation Symbols*/
-{punctuationSymbols} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return PUNCTUATIONSYMBOL;}
-
 /*Validations*/
 {whiteSpace} {}
 {error} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return ERROR;}
+{doubleError} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return DOUBLERROR;}
+/*multilineComment error*/
+{commentError} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return COMMENTERROR; }
+
+
+/*Punctuation Symbols*/
+{punctuationSymbols} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return PUNCTUATIONSYMBOL;}
+
 
 /*Operators and Characters*/
 {twoCharOperators} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return TWOCHAR;}
