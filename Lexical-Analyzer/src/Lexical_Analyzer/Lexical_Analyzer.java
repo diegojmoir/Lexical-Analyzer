@@ -86,7 +86,7 @@ public class Lexical_Analyzer {
                     result += getFormat(text, lineNumber, colNumber, text.toUpperCase() + System.getProperty("line.separator"));
                     break; 
                 case COMMENT:
-                    result += getFormat(text, lineNumber, colNumber, token + System.getProperty("line.separator"));
+                    //result += getFormat(text, lineNumber, colNumber, token + System.getProperty("line.separator"));
                     break; 
                 case TWOCHAR:
                     result += getFormat(text, lineNumber, colNumber, text+ System.getProperty("line.separator"));
@@ -113,7 +113,7 @@ public class Lexical_Analyzer {
                 	result += "ERROR invalid double number: " + text + "      Line:" + lineNumber + System.getProperty("line.separator");
                 	break; 
                 case COMMENTERROR: 
-                	result += "ERROR invalid multiline comment: " + text + "      Line: " + lineNumber + System.getProperty("line.separator");
+                	//result += "ERROR invalid multiline comment: " + text + "      Line: " + lineNumber + System.getProperty("line.separator");
                 	System.out.println("ERROR invalid multiline comment   Line: " + lineNumber);
                 	return;
                 default:
