@@ -11,6 +11,7 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class Lexical_Analyzer {
 
@@ -57,8 +58,9 @@ public class Lexical_Analyzer {
             if(token == null){
                 result += "EOF";
                 //here you should generate the new file
-                String pathOut = file.getCanonicalPath().substring(0 , file.getCanonicalPath().length() -3) + "out";
-                File out = new File(pathOut); 
+                //String pathOut = file.getCanonicalPath().substring(0 , file.getCanonicalPath().length() -4) + "out";
+                String pathT = file.getPath().split(Pattern.quote("."))[0] + ".out";
+                File out = new File(pathT); 
                 FileOutputStream fos = new FileOutputStream(out);
                 OutputStreamWriter osw = new OutputStreamWriter(fos);    
                 Writer w = new BufferedWriter(osw);
@@ -66,7 +68,7 @@ public class Lexical_Analyzer {
                 w.write(result);
                 
                 w.close();
-                System.out.println("The generated file is in:" + pathOut);
+                System.out.println("The generated file is in:" + pathT);
                 return; 
             }
             switch(token){
