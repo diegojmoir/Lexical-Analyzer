@@ -16,12 +16,12 @@ import static Lexical_Analyzer.Token.*;
 
 /*Patterns*/
 keyword = (void|int|double|bool|string|class|interface|null|this|extends|implements|for|while|if|else|return|break|New|NewArray)
-decimal = ([1-9][0-9]*|0)
+decimal = ([0-9][0-9]*)
 identifier = ([a-zA-Z])([a-zA-Z_decimal]*)//{0,30}
 singleLineComment = \/\/.+
 multiLineComment = "/*" ~"*/"
 bool = true|false
-hexadecimal = 0[xX][decimala-fA-F]+
+hexadecimal = 0[xX][0-9a-fA-F]+
 double = [0-9]+\.[0-9]*([eE][+-]?[0-9]+)?
 string =  (\"([^(\")(\n)]|\\\")*\") //\".*?\"
 punctuationSymbols = (;|,|\.)
@@ -38,8 +38,8 @@ commentError = (\/\*[^*]*)//|(("/*")~(\n))
 {bool} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return BOOL;}
 {double} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return DOUBLE;} 
 {string} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return STRING;}
-{decimal}|{hexadecimal} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return INTEGER;}
-
+{decimal} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return INTEGER;}
+{hexadecimal} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return HEXADECIMAL;}
 
 {keyword} {token = yytext(); lineNumber = yyline;  colNumber = yycolumn; return KEYWORD;}
 {identifier} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return IDENTIFIER;}
@@ -48,7 +48,6 @@ commentError = (\/\*[^*]*)//|(("/*")~(\n))
 /*Validations*/
 {whiteSpace} {}
 {error} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return ERROR;}
-{doubleError} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return DOUBLERROR;}
 /*multilineComment error*/
 {commentError} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return COMMENTERROR; }
 

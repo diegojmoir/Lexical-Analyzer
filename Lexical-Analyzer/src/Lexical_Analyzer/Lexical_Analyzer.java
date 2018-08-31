@@ -44,7 +44,7 @@ public class Lexical_Analyzer {
 		jflex.Main.generate(file);
 	}
 
-	public static void CheckLex(File file) throws FileNotFoundException, IOException{
+public static void CheckLex(File file) throws FileNotFoundException, IOException{
         String path = file.getPath();
         boolean flag = true; 
         Reader reader = new BufferedReader(new FileReader(path));
@@ -75,7 +75,7 @@ public class Lexical_Analyzer {
                 case IDENTIFIER:
                     if(text.length() >= 31){
                         result += "ERROR the length of the string it's too long: " +text.substring(0,30) + 
-                                " Linea: " + lineNumber + System.getProperty("line.separator");
+                                " Linea: " + lineNumber + "      is:IDENTIFIER" +System.getProperty("line.separator");
                     }else{
                     	
                         result += getFormat(text, lineNumber, colNumber, token + System.getProperty("line.separator"));
@@ -109,13 +109,14 @@ public class Lexical_Analyzer {
                 case STRING: 
                     result += getFormat(text, lineNumber, colNumber, (token + "      value:("+text+")")) + System.getProperty("line.separator");
                     break;
-                case DOUBLERROR:
-                	result += "ERROR invalid double number: " + text + "      Line:" + lineNumber + System.getProperty("line.separator");
-                	break; 
+
                 case COMMENTERROR: 
                 	//result += "ERROR invalid multiline comment: " + text + "      Line: " + lineNumber + System.getProperty("line.separator");
                 	System.out.println("ERROR invalid multiline comment   Line: " + lineNumber);
                 	return;
+                case HEXADECIMAL:
+                	result += getFormat(text, lineNumber, colNumber, (token + "      value:("+text+")")) + System.getProperty("line.separator");
+                	break;
                 default:
                     result += "ERROR invalid char: " + text + "      Line:" + lineNumber + System.getProperty("line.separator");
                     break; 
