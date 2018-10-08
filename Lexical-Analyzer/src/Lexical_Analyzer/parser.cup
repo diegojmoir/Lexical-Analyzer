@@ -1,0 +1,156 @@
+package Lexical_Analyzer;
+
+import java.util.*;
+import java_cup.runtime.*;
+
+
+
+/*terminals*/
+/*Operators and punctuation symbols*/
+terminal PLUS, SEMICOLON, MINUS, MULT, DIV, COMMA, POINT; 
+/*Logical operators and useful chars*/
+terminal LBRACKET, RBRACKET, LPAREN, RPAREN, LBRACE, RBRACE, EQUAL, MOD, LT, LTE, GT, GTE, CMP, NEQ, AND, OR, NEG, BRACES;
+/*Reserved words*/
+terminal INT, DOUBLE, BOOL, STRING, VOID, CLASS, EXTENDS, IMPLEMENTS, INTERFACE, IF, ELSE, WHILE, FOR, RETURN, BREAK, PRINT, THIS, NEW, NEWARRAY, READINT, READLINE, MALLOC, GETBYTE, SETBYTE, NULL;
+/*ident*/
+terminal String ID, STRINGC;
+terminal Integer INTC;
+terminal Double DOUBLEC;
+terminal Boolean BOOLC;
+
+
+/*non terminals*/
+non terminal Program, Decl, VariableDecl, Formals, Field, StmtBlock, Stmt, IfStmt, WhileStmt, ForStmt, ReturnStmt, BreakStmt, PrintStmt, LibCall, Actuals, Constant;
+non terminal String Variable, Type, FunctionDecl, ClassDecl, InterfaceDecl, Prototype, Expr, LValue, Call;
+non terminal  ReP, ReV, RePR, ReVD, ReS, ReE, ReC1, ReC2, ReC3, ReC4, ReIF;
+
+precedence left PLUS, MINUS;
+precedence left MULT, DIV, MOD;
+precedence left AND, GT, NEQ, EQUAL, OR, CMP, GTE, LTE, LT, NEG; 
+precedence left ELSE; 
+precedence left LPAREN, POINT, COMMA;
+
+
+/*The grammar*/
+start with Program;
+
+Program ::=  Decl ReP;
+ReP ::= Decl ReP
+        | 
+        ;
+Decl ::= VariableDecl
+        | FunctionDecl
+        | ClassDecl
+        | InterfaceDecl;
+VariableDecl ::= Variable SEMICOLON;
+Variable ::= Type ID;
+Type ::= INT
+        |DOUBLE
+        |BOOL
+        |STRING
+        |ID
+        |Type BRACES;
+FunctionDecl ::= Type ID LPAREN Formals RPAREN StmtBlock
+        | VOID ID LPAREN Formals RPAREN StmtBlock;
+Formals ::= Variable ReV  
+        |
+        ;
+ReV ::= COMMA Variable ReV 
+        |
+        ;
+ClassDecl ::= CLASS ID  ReC1 ReC2 LBRACKET ReC4 RBRACKET;
+ReC1 ::= EXTENDS ID 
+		|
+		;
+ReC2 ::= IMPLEMENTS ID ReC3
+		|
+		;
+ReC3 ::= COMMA ID ReC3
+		|
+		;
+ReC4 ::= Field ReC4
+		|
+		;		
+Field ::= VariableDecl
+        | FunctionDecl;
+InterfaceDecl ::= INTERFACE ID LBRACKET RePR RBRACKET;
+RePR ::= Prototype RePR
+		|
+		;
+Prototype ::= Type ID LPAREN Formals RPAREN SEMICOLON
+        | VOID ID LPAREN Formals RPAREN SEMICOLON;
+StmtBlock ::= LBRACKET ReVD ReS RBRACKET;
+ReVD ::= ReVD VariableDecl 
+        |
+        ;
+ReS ::= Stmt ReS
+        |
+        ;
+Stmt ::= Expr SEMICOLON
+		| SEMICOLON
+        | IfStmt
+        | WhileStmt
+        | ForStmt
+        | BreakStmt
+        | ReturnStmt
+        | PrintStmt
+        | StmtBlock;
+IfStmt ::= IF LPAREN Expr RPAREN Stmt ReIF;
+ReIF ::= ELSE Stmt
+		|
+		;
+WhileStmt ::= WHILE LPAREN Expr RPAREN Stmt;
+ForStmt ::= FOR LPAREN Expr SEMICOLON Expr SEMICOLON Expr RPAREN Stmt
+		|FOR LPAREN  SEMICOLON Expr SEMICOLON Expr RPAREN Stmt
+		FOR LPAREN Expr SEMICOLON Expr SEMICOLON  RPAREN Stmt
+		FOR LPAREN  SEMICOLON Expr SEMICOLON  RPAREN Stmt;
+ReturnStmt ::= RETURN Expr SEMICOLON
+		|RETURN SEMICOLON;
+BreakStmt ::= BREAK SEMICOLON;
+PrintStmt ::= PRINT LPAREN Expr ReE RPAREN SEMICOLON;
+ReE ::= COMMA Expr ReE 
+		|
+		; 
+Expr ::=  LValue EQUAL Expr 
+        | Constant
+        | LValue
+        | THIS
+        | Call
+        | LPAREN Expr RPAREN
+        | Expr PLUS Expr
+        | Expr MINUS Expr
+        | Expr MULT Expr
+        | Expr DIV Expr
+        | Expr MOD Expr
+        | MINUS Expr
+        | Expr LT Expr
+        | Expr LTE Expr
+        | Expr GT Expr
+        | Expr GTE Expr
+        | Expr CMP Expr
+        | Expr NEQ Expr
+        | Expr AND Expr
+        | Expr OR Expr
+        | NEG Expr
+        | NEW LPAREN ID RPAREN
+        | NEWARRAY LPAREN Expr COMMA Type RPAREN
+        | READINT LPAREN RPAREN
+        | READLINE LPAREN RPAREN
+        | MALLOC LPAREN Expr RPAREN;
+LValue ::= ID
+        | Expr POINT ID 
+        | Expr LBRACE Expr RBRACE;
+Call ::= ID LPAREN Actuals RPAREN
+        | Expr POINT ID LPAREN Actuals RPAREN
+        | Expr POINT LibCall LPAREN Actuals RPAREN;
+LibCall ::= GETBYTE LPAREN Expr RPAREN
+        | SETBYTE LPAREN Expr COMMA Expr RPAREN;
+Actuals ::= Expr ReE 
+		|
+		;
+Constant ::= INTC 
+        | DOUBLEC
+        | BOOLC
+        | STRINGC
+        | NULL;
+ 

@@ -18,9 +18,12 @@ public class Lexical_Analyzer {
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		// TODO Auto-generated method stub
 		 String path = new File(".").getAbsolutePath();
+		 String cupPath = path.substring(0, path.length()-1)  + "\\Lexical_Analyzer" + "\\parser.cup";
 	     path = path.substring(0, path.length()-1)  + "/Lexical_Analyzer" + "/Lexer.flex";
+	     
 	     GenerateJflex(path); 
-	     String minicPath = "";
+	     GenerateCup(cupPath);
+	     /*String minicPath = "";
 	     boolean flag = true;
 	     Scanner sc = new Scanner(System.in); 
 	     while(flag) {
@@ -31,7 +34,7 @@ public class Lexical_Analyzer {
 	    		 CheckLex(new File(minicPath));
 	    		 flag = false; 
 	    	 }
-	     }
+	     }*/
 	}
 
 	public static String getFormat(String text, int line, int column, String token) {
@@ -43,8 +46,19 @@ public class Lexical_Analyzer {
 		File file = new File(path);
 		jflex.Main.generate(file);
 	}
+	
+	public static void GenerateCup(String path) {
 
-public static void CheckLex(File file) throws FileNotFoundException, IOException{
+		String pathCup = path.substring(0, path.length() - 11);
+		String[] commands = {/* "-expect", "32" ,*/"-destdir", pathCup ,"-parser", "parser", path};
+		try {
+			java_cup.Main.main(commands);
+		}catch(Exception ex) {
+			
+		}
+	}
+
+	/*public static void CheckLex(File file) throws FileNotFoundException, IOException{
         String path = file.getPath();
         boolean flag = true; 
         Reader reader = new BufferedReader(new FileReader(path));
@@ -75,7 +89,7 @@ public static void CheckLex(File file) throws FileNotFoundException, IOException
                 case IDENTIFIER:
                     if(text.length() >= 31){
                         result += "ERROR the length of the string it's too long: " +text.substring(0,30) + 
-                                " Linea: " + lineNumber + "      is:IDENTIFIER" +System.getProperty("line.separator");
+                                " Linea: " + lineNumber + System.getProperty("line.separator");
                     }else{
                     	
                         result += getFormat(text, lineNumber, colNumber, token + System.getProperty("line.separator"));
@@ -109,21 +123,20 @@ public static void CheckLex(File file) throws FileNotFoundException, IOException
                 case STRING: 
                     result += getFormat(text, lineNumber, colNumber, (token + "      value:("+text+")")) + System.getProperty("line.separator");
                     break;
-
+                case DOUBLERROR:
+                	result += "ERROR invalid double number: " + text + "      Line:" + lineNumber + System.getProperty("line.separator");
+                	break; 
                 case COMMENTERROR: 
                 	//result += "ERROR invalid multiline comment: " + text + "      Line: " + lineNumber + System.getProperty("line.separator");
                 	System.out.println("ERROR invalid multiline comment   Line: " + lineNumber);
                 	return;
-                case HEXADECIMAL:
-                	result += getFormat(text, lineNumber, colNumber, (token + "      value:("+text+")")) + System.getProperty("line.separator");
-                	break;
                 default:
                     result += "ERROR invalid char: " + text + "      Line:" + lineNumber + System.getProperty("line.separator");
                     break; 
             }
             
         }
-    }
+    }*/
     
      
     

@@ -1,62 +1,98 @@
 package Lexical_Analyzer;
-import static Lexical_Analyzer.Token.*;
+
+import java_cup.runtime.Symbol;
+import java.util.*;
 
 %%
-
+%cup
 %class Lexer
-%type Token
 %line
 %column
 
 %{
-    public String token; 
-    public int lineNumber; 
-    public int colNumber; 
+    private Symbol symbol(int type, Object value){
+        return new Symbol(type, yyline, yycolumn, value);
+    }
+
 %}
 
 /*Patterns*/
-keyword = (void|int|double|bool|string|class|interface|null|this|extends|implements|for|while|if|else|return|break|New|NewArray)
-decimal = ([0-9][0-9]*)
+decimal = ([1-9][0-9]*|0)
 identifier = ([a-zA-Z])([a-zA-Z_decimal]*)//{0,30}
 singleLineComment = \/\/.+
 multiLineComment = "/*" ~"*/"
 bool = true|false
-hexadecimal = 0[xX][0-9a-fA-F]+
+hexadecimal = 0[xX][decimala-fA-F]+
 double = [0-9]+\.[0-9]*([eE][+-]?[0-9]+)?
 string =  (\"([^(\")(\n)]|\\\")*\") //\".*?\"
-punctuationSymbols = (;|,|\.)
-error = (#|\´|\'|\_|\:|\$|\¿|\"|&|\||\~|\^|\`)
-twoCharOperators = (<=|>=|==|\!=|&&|\|\||\{\}|\[\]|\(\))
-oneCharOperators = (\+|\-|\*|\/|%|<|>|=|\!|\[|\]|\(|\)|\{|\})
+error = (#|\Â´|\'|\_|\:|\$|\Â¿|\"|&|\||\~|\^|\`)
+
 whiteSpace = \s
 doubleError = (\.)([0-9]+)
 commentError = (\/\*[^*]*)//|(("/*")~(\n))
 %%
 
 
-/*Constants*/
-{bool} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return BOOL;}
-{double} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return DOUBLE;} 
-{string} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return STRING;}
-{decimal} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return INTEGER;}
-{hexadecimal} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return HEXADECIMAL;}
-
-{keyword} {token = yytext(); lineNumber = yyline;  colNumber = yycolumn; return KEYWORD;}
-{identifier} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return IDENTIFIER;}
-{singleLineComment}|{multiLineComment} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return COMMENT;}
-
-/*Validations*/
-{whiteSpace} {}
-{error} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return ERROR;}
-/*multilineComment error*/
-{commentError} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return COMMENTERROR; }
-
-
+punctuationSymbols = (;|,|\.)
 /*Punctuation Symbols*/
-{punctuationSymbols} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return PUNCTUATIONSYMBOL;}
+";" {return new Symbol(sym.SEMICOLON);}
+"," {return new Symbol(sym.COMMA);}
+"." {return new Symbol(sym.POINT);}
 
+/*One char operators*/
+"+" {return new Symbol(sym.PLUS);}
+"-" {return new Symbol(sym.MINUS);}
+"*" {return new Symbol(sym.MULT);}
+"/" {return new Symbol(sym.DIV);}
+"%" {return new Symbol(sym.MOD);}
+"<" {return new Symbol(sym.LT);}
+">" {return new Symbol(sym.GT);}
+"=" {return new Symbol(sym.EQUAL);}
+"!" {return new Symbol(sym.NEG);}
+"[" {return new Symbol(sym.LBRACE);}
+"]" {return new Symbol(sym.RBRACE);}
+"(" {return new Symbol(sym.LPAREN);}
+")" {return new Symbol(sym.RPAREN);}
+"{" {return new Symbol(sym.LBRACKET);}
+"}" {return new Symbol(sym.RBRACKET);}
 
-/*Operators and Characters*/
-{twoCharOperators} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return TWOCHAR;}
-{oneCharOperators} {token = yytext(); lineNumber = yyline; colNumber = yycolumn; return ONECHAR;}
+/*twoCharOperators*/
+"<=" {return new Symbol(sym.LTE);}
+">=" {return new Symbol(sym.GTE);}
+"==" {return new Symbol(sym.CMP);}
+"!=" {return new Symbol(sym.NEQ);}
+"&&" {return new Symbol(sym.AND);}
+"||" {return new Symbol(sym.OR);}
+"[]" {return new Symbol(sym.BRACES);}
 
+/*Reserved Words*/
+"void" {return new Symbol(sym.VOID);}
+"int" {return new Symbol(sym.INT);}
+"double" {return new Symbol(sym.DOUBLE);}
+"bool" {return new Symbol(sym.BOOL);}
+"string" {return new Symbol(sym.STRING);}
+"class" {return new Symbol(sym.CLASS);}
+"interface" {return new Symbol(sym.INTERFACE);}
+"null" {return new Symbol(sym.NULL);}
+"this" {return new Symbol(sym.THIS);}
+"extends" {return new Symbol(sym.EXTENDS);}
+"implements" {return new Symbol(sym.IMPLEMENTS);}
+"for" {return new Symbol(sym.FOR);}
+"while" {return new Symbol(sym.WHILE);}
+"if" {return new Symbol(sym.IF);}
+"else" {return new Symbol(sym.ELSE);}
+"return" {return new Symbol(sym.RETURN);}
+"break" {return new Symbol(sym.BREAK);}
+"New" {return new Symbol(sym.NEW);}
+"NewArray" {return new Symbol(sym.NEWARRAY);}
+"Print" {return new Symbol(sym.PRINT);}
+"ReadInteger" {return new Symbol(sym.READINT);}
+"ReadLine" {return new Symbol(sym.READLINE);}
+"Malloc" {return new Symbol(sym.MALLOC);}
+
+/*Constants*/
+{bool} {return new Symbol(sym.BOOLC, yytext());}
+{double} {return new Symbol(sym.DOUBLEC, yytext());} 
+{string} {return new Symbol(sym.STRINGC, yytext());}
+{decimal}|{hexadecimal} {return new Symbol(sym.INTC, yytext());}
+{identifier} {return new Symbol(sym.ID, yytext());}
