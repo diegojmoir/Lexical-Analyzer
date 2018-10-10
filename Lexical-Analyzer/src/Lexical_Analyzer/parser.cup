@@ -4,12 +4,21 @@ import java.util.*;
 import java_cup.runtime.*;
 
 
+parser code {:
+	public void syntax_error(Symbol error){
+		System.out.println("Error Sintaxis 	                              Linea:" + (error.left+1) + " Columna:" + (error.right+1) + " Valor:" + error.value);
+	}
+	
+	public void unrecovered_syntax_error(Symbol error) throws java.lang.Exception{
+		
+	}
+:};
 
 /*terminals*/
 /*Operators and punctuation symbols*/
 terminal PLUS, SEMICOLON, MINUS, MULT, DIV, COMMA, POINT; 
 /*Logical operators and useful chars*/
-terminal LBRACKET, RBRACKET, LPAREN, RPAREN, LBRACE, RBRACE, EQUAL, MOD, LT, LTE, GT, GTE, CMP, NEQ, AND, OR, NEG, BRACES;
+terminal LBRACKET, RBRACKET, LPAREN, RPAREN, LBRACE, RBRACE, EQUAL, MOD, LT, LTE, GT, GTE, CMP, NEQ, AND, OR, NEG, BRACES, PARENS;
 /*Reserved words*/
 terminal INT, DOUBLE, BOOL, STRING, VOID, CLASS, EXTENDS, IMPLEMENTS, INTERFACE, IF, ELSE, WHILE, FOR, RETURN, BREAK, PRINT, THIS, NEW, NEWARRAY, READINT, READLINE, MALLOC, GETBYTE, SETBYTE, NULL;
 /*ident*/
@@ -24,11 +33,23 @@ non terminal Program, Decl, VariableDecl, Formals, Field, StmtBlock, Stmt, IfStm
 non terminal String Variable, Type, FunctionDecl, ClassDecl, InterfaceDecl, Prototype, Expr, LValue, Call;
 non terminal  ReP, ReV, RePR, ReVD, ReS, ReE, ReC1, ReC2, ReC3, ReC4, ReIF;
 
+
+precedence left LBRACE, POINT;
+precedence left NEG;
+precedence left MULT, DIV, MOD;
 precedence left PLUS, MINUS;
+precedence left LT, LTE, GT, GTE;
+precedence left CMP, NEQ;
+precedence left AND;
+precedence left OR;
+precedence left EQUAL;
+precedence left ELSE;
+
+/*precedence left PLUS, MINUS;
 precedence left MULT, DIV, MOD;
 precedence left AND, GT, NEQ, EQUAL, OR, CMP, GTE, LTE, LT, NEG; 
 precedence left ELSE; 
-precedence left LPAREN, POINT, COMMA;
+precedence left LPAREN, POINT, COMMA;*/
 
 
 /*The grammar*/
@@ -41,7 +62,9 @@ ReP ::= Decl ReP
 Decl ::= VariableDecl
         | FunctionDecl
         | ClassDecl
-        | InterfaceDecl;
+        | InterfaceDecl
+    	|error SEMICOLON
+		|error RBRACKET;
 VariableDecl ::= Variable SEMICOLON;
 Variable ::= Type ID;
 Type ::= INT
@@ -51,7 +74,9 @@ Type ::= INT
         |ID
         |Type BRACES;
 FunctionDecl ::= Type ID LPAREN Formals RPAREN StmtBlock
-        | VOID ID LPAREN Formals RPAREN StmtBlock;
+        | VOID ID LPAREN Formals RPAREN StmtBlock
+        | Type ID PARENS StmtBlock
+        | VOID ID PARENS StmtBlock;
 Formals ::= Variable ReV  
         |
         ;
@@ -102,7 +127,7 @@ ReIF ::= ELSE Stmt
 WhileStmt ::= WHILE LPAREN Expr RPAREN Stmt;
 ForStmt ::= FOR LPAREN Expr SEMICOLON Expr SEMICOLON Expr RPAREN Stmt
 		|FOR LPAREN  SEMICOLON Expr SEMICOLON Expr RPAREN Stmt
-		FOR LPAREN Expr SEMICOLON Expr SEMICOLON  RPAREN Stmt
+		|FOR LPAREN Expr SEMICOLON Expr SEMICOLON  RPAREN Stmt
 		FOR LPAREN  SEMICOLON Expr SEMICOLON  RPAREN Stmt;
 ReturnStmt ::= RETURN Expr SEMICOLON
 		|RETURN SEMICOLON;
@@ -134,8 +159,8 @@ Expr ::=  LValue EQUAL Expr
         | NEG Expr
         | NEW LPAREN ID RPAREN
         | NEWARRAY LPAREN Expr COMMA Type RPAREN
-        | READINT LPAREN RPAREN
-        | READLINE LPAREN RPAREN
+        | READINT PARENS
+        | READLINE PARENS
         | MALLOC LPAREN Expr RPAREN;
 LValue ::= ID
         | Expr POINT ID 
