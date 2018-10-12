@@ -10,6 +10,7 @@ import java.util.*;
 %column
 
 %{
+	public int numLErr = 0;
 	private Symbol symbol(int type, int row, int col){
 		return new Symbol(type, row, col, yytext());	
 	}
@@ -21,11 +22,13 @@ import java.util.*;
     private void showError(String error, int row, int col){
     	
     		System.out.println("Error Lexico 	                              Linea:" + row + " Columna:" + col + "  " + error);	
+    		numLErr++;
     }
     
     private void checkLength(String value, int row, int col){
     	if(value.length() >= 31){
     		System.out.println("Error Lexico Id Posee mas de 31 caracteres    Linea:" + row + " Columna:" + col + "  " + value );
+    		numLErr++;
     	}
     }
 
@@ -34,7 +37,7 @@ import java.util.*;
 /*Patterns*/
 decimal = ([1-9][0-9]*|0)
 identifier = ((_)*)?[a-zA-Z][a-zA-Z0-9]* 
-singleLineComment = \/\/.+
+singleLineComment = \/\/[^\n\r]*
 multiLineComment = "/*" ~"*/" 
 bool = true|false
 hexadecimal = 0[xX][decimala-fA-F]+
@@ -94,7 +97,7 @@ punctuationSymbols = (;|,|\.)
 "this" {return new Symbol(sym.THIS, yyline, yycolumn, yytext());}
 "extends" {return new Symbol(sym.EXTENDS, yyline, yycolumn, yytext());}
 "implements" {return new Symbol(sym.IMPLEMENTS, yyline, yycolumn, yytext());}
-"for" {return new Symbol(sym.FOR, yyline, yycolumn, yytext());}
+"for" {	return new Symbol(sym.FOR, yyline, yycolumn, yytext());}
 "while" {return new Symbol(sym.WHILE, yyline, yycolumn, yytext());}
 "if" {return new Symbol(sym.IF, yyline, yycolumn, yytext());}
 "else" {return new Symbol(sym.ELSE, yyline, yycolumn, yytext());}

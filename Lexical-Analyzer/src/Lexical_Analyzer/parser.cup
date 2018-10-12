@@ -5,8 +5,10 @@ import java_cup.runtime.*;
 
 
 parser code {:
+	public int numErr = 0;
 	public void syntax_error(Symbol error){
 		System.out.println("Error Sintaxis 	                              Linea:" + (error.left+1) + " Columna:" + (error.right+1) + " Valor:" + error.value);
+		numErr++;
 	}
 	
 	public void unrecovered_syntax_error(Symbol error) throws java.lang.Exception{
@@ -103,7 +105,9 @@ RePR ::= Prototype RePR
 		|
 		;
 Prototype ::= Type ID LPAREN Formals RPAREN SEMICOLON
-        | VOID ID LPAREN Formals RPAREN SEMICOLON;
+        | VOID ID LPAREN Formals RPAREN SEMICOLON
+        |Type ID PARENS SEMICOLON
+    	|VOID ID PARENS SEMICOLON;
 StmtBlock ::= LBRACKET ReVD ReS RBRACKET;
 ReVD ::= ReVD VariableDecl 
         |
@@ -128,7 +132,7 @@ WhileStmt ::= WHILE LPAREN Expr RPAREN Stmt;
 ForStmt ::= FOR LPAREN Expr SEMICOLON Expr SEMICOLON Expr RPAREN Stmt
 		|FOR LPAREN  SEMICOLON Expr SEMICOLON Expr RPAREN Stmt
 		|FOR LPAREN Expr SEMICOLON Expr SEMICOLON  RPAREN Stmt
-		FOR LPAREN  SEMICOLON Expr SEMICOLON  RPAREN Stmt;
+		|FOR LPAREN  SEMICOLON Expr SEMICOLON  RPAREN Stmt;
 ReturnStmt ::= RETURN Expr SEMICOLON
 		|RETURN SEMICOLON;
 BreakStmt ::= BREAK SEMICOLON;
@@ -167,7 +171,10 @@ LValue ::= ID
         | Expr LBRACE Expr RBRACE;
 Call ::= ID LPAREN Actuals RPAREN
         | Expr POINT ID LPAREN Actuals RPAREN
-        | Expr POINT LibCall LPAREN Actuals RPAREN;
+        | Expr POINT LibCall LPAREN Actuals RPAREN
+    	|ID PARENS
+    	|Expr POINT ID PARENS
+    	|Expr POINT LibCall PARENS;
 LibCall ::= GETBYTE LPAREN Expr RPAREN
         | SETBYTE LPAREN Expr COMMA Expr RPAREN;
 Actuals ::= Expr ReE 

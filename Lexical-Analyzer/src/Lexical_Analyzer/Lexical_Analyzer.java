@@ -64,9 +64,16 @@ public class Lexical_Analyzer {
 	public static void CheckLex(File file) throws FileNotFoundException, IOException, Exception{
         String path = file.getPath();
         boolean flag = true; 
-        parser p = new parser(new Lexer(new FileReader(path)));
+        Reader reader = new BufferedReader(new FileReader(path));
+        Lexer lex = new Lexer(reader);
+        parser p = new parser(lex);
+        
         //p.debug_parse();
         p.parse();
+        if((p.numErr + lex.numLErr) == 0) {
+        	System.out.println("Archivo sintacticamente correcto :J");
+        }
+        
     }
     
      
