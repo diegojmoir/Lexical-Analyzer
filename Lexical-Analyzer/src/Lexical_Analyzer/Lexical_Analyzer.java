@@ -13,6 +13,7 @@ import java.io.Writer;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
+
 public class Lexical_Analyzer {
 
 	public static void main(String[] args) throws FileNotFoundException, IOException, Exception {
@@ -20,7 +21,10 @@ public class Lexical_Analyzer {
 		 String path = new File(".").getAbsolutePath();
 		 String cupPath = path.substring(0, path.length()-1)  + "\\Lexical_Analyzer" + "\\parser.cup";
 	     path = path.substring(0, path.length()-1)  + "/Lexical_Analyzer" + "/Lexer.flex";
- 
+	     
+	     java.util.List<String>hola = new java.util.ArrayList<String>();
+	     hola.add("21"); 
+	     hola.add("11"); 
 
 	     String minicPath = "";
 	     boolean flag = true;
@@ -73,6 +77,7 @@ public class Lexical_Analyzer {
         if((p.numErr + lex.numLErr) == 0) {
         	System.out.println("Archivo sintacticamente correcto :J");
         }
+        
         
     }
     

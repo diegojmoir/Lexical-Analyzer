@@ -1,0 +1,3 @@
+id: hola  value:   type: int  Ambito: 0 Pertenece: null
+id: b  value:   type: bool  Ambito: 0 Pertenece: null
+id: puerVida  value:   type: void  Ambito: 0 Pertenece: null

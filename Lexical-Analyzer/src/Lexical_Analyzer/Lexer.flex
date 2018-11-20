@@ -36,7 +36,7 @@ import java.util.*;
 
 /*Patterns*/
 decimal = ([1-9][0-9]*|0)
-identifier = ((_)*)?[a-zA-Z][a-zA-Z0-9]* 
+identifier = ((_)*)?[a-zA-Z][_a-zA-Z0-9]* 
 singleLineComment = \/\/[^\n\r]*
 multiLineComment = "/*" ~"*/" 
 bool = true|false
@@ -46,10 +46,15 @@ string =  (\"([^(\")(\n)]|\\\")*\") //\".*?\"
 
 error = (#|\´|\'|\_|\:|\$|\¿|\"|&|\||\~|\^|\`)
 
+fileName = ([a-zA-Z0-9\s_.\-\(\)])+(.txt|.frag)
+
 whiteSpace = \s
 commentError = (\/\*[^*]*)//|(("/*")~(\n))
 punctuationSymbols = (;|,|\.)
 %%
+
+
+{fileName} {return new Symbol(sym.FILENAME, yyline, yycolumn, yytext());}
 
 /*Punctuation Symbols*/
 ";" {return new Symbol(sym.SEMICOLON, yyline, yycolumn, yytext());}
@@ -82,12 +87,14 @@ punctuationSymbols = (;|,|\.)
 ")" {return new Symbol(sym.RPAREN, yyline, yycolumn, yytext());}
 "{" {return new Symbol(sym.LBRACKET, yyline, yycolumn, yytext());}
 "}" {return new Symbol(sym.RBRACKET, yyline, yycolumn, yytext());}
+"#" {return new Symbol(sym.SHARP, yyline ,yycolumn, yytext());}
 
 
 
 /*Reserved Words*/
 "void" {return new Symbol(sym.VOID, yyline, yycolumn, yytext());}
 "int" {return new Symbol(sym.INT, yyline, yycolumn, yytext());}
+"const" {return new Symbol(sym.CONST, yyline, yycolumn, yytext());}
 "double" {return new Symbol(sym.DOUBLE, yyline, yycolumn, yytext());}
 "bool" {return new Symbol(sym.BOOL, yyline, yycolumn, yytext());}
 "string" {return new Symbol(sym.STRING, yyline, yycolumn, yytext());}
@@ -109,15 +116,15 @@ punctuationSymbols = (;|,|\.)
 "ReadInteger" {return new Symbol(sym.READINT, yyline, yycolumn, yytext());}
 "ReadLine" {return new Symbol(sym.READLINE, yyline, yycolumn, yytext());}
 "Malloc" {return new Symbol(sym.MALLOC, yyline, yycolumn, yytext());}
+"include" {return new Symbol(sym.INCLUDES, yyline, yycolumn, yytext());}
 
 /*Constants*/
-{bool} {return new Symbol(sym.BOOLC, yyline, yycolumn, yytext());}
-{double} {return new Symbol(sym.DOUBLEC,  yyline, yycolumn, yytext());} 
+{bool} {return new Symbol(sym.BOOLC, yyline, yycolumn, new Boolean(yytext()));}
+{double} {return new Symbol(sym.DOUBLEC,  yyline, yycolumn, new Double(yytext()));} 
 {string} {return new Symbol(sym.STRINGC,  yyline, yycolumn, yytext());}
-{decimal}|{hexadecimal} {return new Symbol(sym.INTC, yyline, yycolumn, yytext());}
+{decimal}|{hexadecimal} {return new Symbol(sym.INTC, yyline, yycolumn, new Integer(yytext()));}
 {identifier} { checkLength(yytext(), yyline, yycolumn);
 					return new Symbol(sym.ID,  yyline, yycolumn ,yytext());}
-
 
 [ \t\r]+ {}
 [\n]+    {}

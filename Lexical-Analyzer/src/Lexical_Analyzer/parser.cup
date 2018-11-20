@@ -2,6 +2,83 @@ package Lexical_Analyzer;
 
 import java.util.*;
 import java_cup.runtime.*;
+import java.io.*;
+
+
+action code {:
+	public List<Symbols> table = new ArrayList<Symbols>(); 
+	Symbols aux = new Symbols("", -1, ""); 
+	int params = 0; 
+	int globalScope = 0; 
+	int currentClass = 0; 
+	boolean isFunction = false; 
+	
+	public boolean exist(String id){ 
+		for(int i = 0; i < table.size(); i++){
+			Symbols aux = table.get(i); 
+			if(aux.identifier.equals(id) && aux.scope == globalScope){
+				return true; 
+			}
+	 							
+		}
+		return false; 
+	}
+	
+	public boolean allScopes(String id){
+			for(int i = 0; i < table.size(); i++){
+			Symbols aux = table.get(i); 
+			for(int j = globalScope; j >= 0 ; j--){
+				if(aux.identifier.equals(id) && aux.scope == j){
+					return true; 
+				}
+			}		 							
+		}
+		return false; 
+	}
+	
+	public int symPos(String id){
+			for(int i = 0; i < table.size(); i++){
+			Symbols aux = table.get(i); 
+			for(int j = globalScope; j >= 0 ; j--){
+				if(aux.identifier.equals(id) && aux.scope == j){
+					return i; 
+				}
+			}		 							
+		}
+		return -1;
+	}
+	
+	public void writeTable() throws IOException{
+		String path = new File(".").getAbsolutePath();
+		PrintWriter out = new PrintWriter(new FileWriter(path+"\\sym.txt"));
+		for(int i = 0; i < table.size(); i++){
+			Symbols aux = table.get(i); 
+			out.println("id: "+ aux.identifier + "  value: " +  aux.value + "  type: " + aux.type + "  Ambito: " + aux.scope + " Pertenece: " + aux.father); 
+		}
+		out.close(); 
+	}
+	
+	public String getType (Object val){
+        if (val instanceof Integer)
+            return "int";
+        else if (val instanceof Double)
+            return "double";
+        else if (val instanceof String)
+            return getVarType(val.toString()); 
+        else if (val instanceof Boolean)
+            return "bool";
+        else 
+            return "obj";
+    }
+    
+	public String getVarType(String id){
+		if(allScopes(id)){
+			return table.get(symPos(id)).type; 
+		}else
+		return "string"; 
+	}
+	
+:}; 
 
 
 parser code {:
@@ -18,22 +95,23 @@ parser code {:
 
 /*terminals*/
 /*Operators and punctuation symbols*/
-terminal PLUS, SEMICOLON, MINUS, MULT, DIV, COMMA, POINT; 
+terminal PLUS, SEMICOLON, MINUS, MULT, DIV, COMMA, POINT, SHARP; 
 /*Logical operators and useful chars*/
 terminal LBRACKET, RBRACKET, LPAREN, RPAREN, LBRACE, RBRACE, EQUAL, MOD, LT, LTE, GT, GTE, CMP, NEQ, AND, OR, NEG, BRACES, PARENS;
 /*Reserved words*/
-terminal INT, DOUBLE, BOOL, STRING, VOID, CLASS, EXTENDS, IMPLEMENTS, INTERFACE, IF, ELSE, WHILE, FOR, RETURN, BREAK, PRINT, THIS, NEW, NEWARRAY, READINT, READLINE, MALLOC, GETBYTE, SETBYTE, NULL;
+terminal  INCLUDES, INT, DOUBLE, BOOL, STRING, VOID, CLASS, EXTENDS, IMPLEMENTS, INTERFACE, IF, ELSE, WHILE, FOR, RETURN, BREAK, PRINT, THIS, NEW, NEWARRAY, READINT, READLINE, MALLOC, GETBYTE, SETBYTE, NULL, CONST;
 /*ident*/
-terminal String ID, STRINGC;
-terminal Integer INTC;
-terminal Double DOUBLEC;
-terminal Boolean BOOLC;
+terminal String ID, STRINGC, FILENAME;
+terminal int INTC;
+terminal double DOUBLEC;
+terminal boolean BOOLC;
 
 
 /*non terminals*/
-non terminal Program, Decl, VariableDecl, Formals, Field, StmtBlock, Stmt, IfStmt, WhileStmt, ForStmt, ReturnStmt, BreakStmt, PrintStmt, LibCall, Actuals, Constant;
-non terminal String Variable, Type, FunctionDecl, ClassDecl, InterfaceDecl, Prototype, Expr, LValue, Call;
-non terminal  ReP, ReV, RePR, ReVD, ReS, ReE, ReC1, ReC2, ReC3, ReC4, ReIF;
+non terminal Program, Decl, VariableDecl, Formals, Field, StmtBlock, Stmt, IfStmt, WhileStmt, ForStmt, ReturnStmt, BreakStmt, PrintStmt, LibCall, Actuals,  Include;
+non terminal  Variable, FunctionDecl, ClassDecl, InterfaceDecl, Prototype, Expr, LValue, Call, ConstantDecl, AConstant, Constant;
+non terminal  ReP, ReV, RePR, ReVD, ReS, ReE, ReC1, ReC2, ReC3, ReC4, ReIF, RepI;
+non terminal String Type; 
 
 
 precedence left LBRACE, POINT;
@@ -45,7 +123,7 @@ precedence left CMP, NEQ;
 precedence left AND;
 precedence left OR;
 precedence left EQUAL;
-precedence left ELSE;
+precedence left ELSE, CONST;
 
 /*precedence left PLUS, MINUS;
 precedence left MULT, DIV, MOD;
@@ -57,7 +135,12 @@ precedence left LPAREN, POINT, COMMA;*/
 /*The grammar*/
 start with Program;
 
-Program ::=  Decl ReP;
+Program ::= RepI Decl ReP;
+RepI ::= Include RepI
+		 |
+		 ;
+
+Include ::= SHARP INCLUDES LT FILENAME:path GT;
 ReP ::= Decl ReP
         | 
         ;
@@ -65,27 +148,112 @@ Decl ::= VariableDecl
         | FunctionDecl
         | ClassDecl
         | InterfaceDecl
+        | ConstantDecl
     	|error SEMICOLON
 		|error RBRACKET;
 VariableDecl ::= Variable SEMICOLON;
-Variable ::= Type ID;
-Type ::= INT
-        |DOUBLE
-        |BOOL
-        |STRING
-        |ID
-        |Type BRACES;
-FunctionDecl ::= Type ID LPAREN Formals RPAREN StmtBlock
-        | VOID ID LPAREN Formals RPAREN StmtBlock
-        | Type ID PARENS StmtBlock
-        | VOID ID PARENS StmtBlock;
-Formals ::= Variable ReV  
+Variable ::= Type: type ID:id
+		{:	 
+			RESULT = type+ " "+id;
+			if(!exist(id)){
+				Symbols aux = new Symbols(id, globalScope, type);
+				if( !table.isEmpty()  && table.get(params).declaration){
+					aux.father = table.get(params).identifier; 
+				}
+				table.add(aux); 
+				writeTable(); 
+				System.out.println(type+ " " + id +" " + aux.father);
+			}else{
+				System.out.println("la variable ya existe");} :};
+Type ::= INT:_int {:RESULT= (String)_int; :}
+        |DOUBLE: _double {: RESULT=(String) _double;:}
+        |BOOL:_bool {:RESULT = (String)_bool; :}
+        |STRING:_string {:RESULT = (String)_string;:}
+        |ID:_id {:RESULT =(String) _id; :}
+        |Type:_type BRACES
+        {:RESULT = (String)_type + "[]";:};
+FunctionDecl ::= Type:type ID:id{:
+		if(!exist(id)){
+			Symbols aux = new Symbols(id, globalScope, type);
+			if(table.get(params).declaration){
+				aux.father = table.get(params).identifier; 
+			}
+			aux.declaration = true;
+			table.add(aux); 
+			globalScope++;
+			params = table.size() -1;    
+			writeTable();
+		}else{
+			System.out.println("la funcion ya existe"); 
+		} :} LPAREN Formals RPAREN {:table.get(params).declaration = false; :} StmtBlock {:globalScope--;:}		
+        |VOID ID:id 
+        {:
+    	if(!exist(id)){
+	        Symbols aux = new Symbols(id, globalScope, "void");
+			if(table.get(params).declaration){
+				aux.father = table.get(params).identifier; 
+			}
+	        aux.declaration = true;
+	        table.add(aux); 
+	        params = table.size() -1;
+			globalScope++;
+			writeTable();  
+		}else{
+			System.out.println("El procedimiento ya existe"); 
+		}:} LPAREN Formals RPAREN {:table.get(params).declaration = false; :} StmtBlock {:globalScope--;:}
+        | Type:type ID:id 
+        {:
+        if(!exist(id)){
+	        Symbols aux = new Symbols(id, globalScope, type);
+			if(table.get(params).declaration){
+				aux.father = table.get(params).identifier; 
+			}
+	        aux.declaration = true;
+	        table.add(aux); 
+	        globalScope++; 
+			writeTable();}else{
+			System.out.println("La funcion ya existe"); 
+		} :} PARENS StmtBlock {:globalScope--; :}
+        | VOID ID:id 
+        {:
+        if(!exist(id)){
+	        Symbols aux = new Symbols(id, globalScope, "void");
+			if(table.get(params).declaration){
+				aux.father = table.get(params).identifier; 
+			}
+	        aux.declaration = true;
+	        table.add(aux); 
+	        globalScope++; 
+			writeTable();} else{
+			System.out.println("El procedimiento ya existe"); 
+		} :} PARENS StmtBlock {:globalScope--;:};
+Formals ::= Variable:val ReV
         |
         ;
-ReV ::= COMMA Variable ReV 
+ReV ::= COMMA Variable:val  ReV 
         |
         ;
-ClassDecl ::= CLASS ID  ReC1 ReC2 LBRACKET ReC4 RBRACKET;
+ConstantDecl ::= AConstant SEMICOLON;
+AConstant ::= CONST:decl Type:type ID:id
+		{: 
+			if(!exist(id)){
+				Symbols aux = new Symbols(id, globalScope, type);
+				table.add(aux); 
+			}else{
+				System.out.println("La constante ya existe"); 
+			}:};
+ClassDecl ::= CLASS ID:id {:
+				if(!exist(id)){ 
+					Symbols aux = new Symbols(id, globalScope, "class");
+					aux.declaration = true; 
+					table.add(aux); 
+					globalScope++; 
+					params = table.size() -1; 
+					currentClass = params; 
+					writeTable();
+				}else{
+					System.out.println("La clase ya existe"); 
+				} :} ReC1 ReC2 LBRACKET ReC4 RBRACKET {:params = 0; globalScope--; System.out.println(globalScope);:};
 ReC1 ::= EXTENDS ID 
 		|
 		;
@@ -95,21 +263,70 @@ ReC2 ::= IMPLEMENTS ID ReC3
 ReC3 ::= COMMA ID ReC3
 		|
 		;
-ReC4 ::= Field ReC4
+ReC4 ::= Field:val {::} ReC4
 		|
 		;		
-Field ::= VariableDecl
-        | FunctionDecl;
-InterfaceDecl ::= INTERFACE ID LBRACKET RePR RBRACKET;
+Field ::= VariableDecl:val {:RESULT = val; System.out.println(val);  :}
+        | FunctionDecl:val {:RESULT = val; params = currentClass;:}
+        | ConstantDecl:val {:RESULT = val; :}
+        ;
+InterfaceDecl ::= INTERFACE ID:id {:
+				if(!exist(id)){
+					Symbols aux = new Symbols(id, globalScope, "interface");
+					aux.declaration = true; 
+					table.add(aux); 
+					globalScope++; 
+					writeTable(); 
+				}else{
+					System.out.println("La interfaz ya existe"); 
+				}
+			:} LBRACKET RePR RBRACKET {:globalScope--; :};
 RePR ::= Prototype RePR
 		|
 		;
-Prototype ::= Type ID LPAREN Formals RPAREN SEMICOLON
-        | VOID ID LPAREN Formals RPAREN SEMICOLON
-        |Type ID PARENS SEMICOLON
-    	|VOID ID PARENS SEMICOLON;
-StmtBlock ::= LBRACKET ReVD ReS RBRACKET;
-ReVD ::= ReVD VariableDecl 
+Prototype ::= Type:type ID:id {:
+			if(!exist(id)){
+				Symbols aux = new Symbols(id, globalScope, type);
+				aux.declaration = true; 
+				table.add(aux); 
+				globalScope++; 
+				params = table.size() -1; 
+				writeTable();}else{
+					System.out.println("La funcion ya existe"); 
+				}
+		:}LPAREN Formals RPAREN {:globalScope--;:} SEMICOLON
+        | VOID ID:id {:
+        	if(!exist(id)){
+        		Symbols aux = new Symbols(id, globalScope, "void");
+        		aux.declaration = true;  
+        		table.add(aux); 
+        		globalScope++;
+        		params = table.size() -1; 
+        		writeTable();}else{
+        			System.out.println("El procedimiento ya existe"); 
+        		}        
+        :} LPAREN Formals RPAREN {:globalScope--; :} SEMICOLON
+        |Type:type ID:id {:
+        	if(!exist(id)){
+        		Symbols aux = new Symbols(id, globalScope, type);
+        		table.add(aux); 
+        		globalScope++;
+        		writeTable();} else{
+        			System.out.println("La funcion ya existe"); 
+        		}       	
+        :}PARENS {:globalScope--;:}SEMICOLON
+    	|VOID ID:id{:
+    		if(!exist(id)){
+    			Symbols aux = new Symbols(id, globalScope, "void"); 
+    			table.add(aux); 
+    			globalScope++; 
+    			writeTable();}else{
+    				System.out.println("El procedimiento ya existe"); 
+    			}
+    	:} PARENS {:globalScope--;:} SEMICOLON;
+StmtBlock ::= LBRACKET ReVD ReS  RBRACKET; 
+ReVD ::= ReVD ConstantDecl 
+        |ReVD VariableDecl
         |
         ;
 ReS ::= Stmt ReS
@@ -137,16 +354,36 @@ ReturnStmt ::= RETURN Expr SEMICOLON
 		|RETURN SEMICOLON;
 BreakStmt ::= BREAK SEMICOLON;
 PrintStmt ::= PRINT LPAREN Expr ReE RPAREN SEMICOLON;
-ReE ::= COMMA Expr ReE 
+ReE ::= COMMA Expr:val {:System.out.println(val); :} ReE 
 		|
 		; 
-Expr ::=  LValue EQUAL Expr 
-        | Constant
-        | LValue
+Expr ::=  LValue:val EQUAL Expr:e1 {:
+				RESULT = e1; 
+				System.out.println(RESULT); 
+			:}
+        | Constant:cons {:RESULT = cons; :}
+        | LValue:val  {:System.out.println(val); RESULT = val; :}
         | THIS
         | Call
         | LPAREN Expr RPAREN
-        | Expr PLUS Expr
+        | Expr:e1 PLUS Expr:e2{:
+        	String type1 = getType(e1); 
+        	String type2 = getType(e2); 
+			System.out.println(type1 + type2); 
+        	if(type1.equals("string") && type2.equals("string")){
+        		RESULT = e1.toString().substring(1, e1.toString().length() -1) + e2.toString().substring(1, e2.toString().length() -1);         		
+        		System.out.println("string" + RESULT); 
+        	}else if(type1.equals("int") && type2.equals("int")){
+        		RESULT = (Object)(Integer.parseInt(e1.toString()) + Integer.parseInt(e2.toString())); 
+        		System.out.println("int" + RESULT); 
+        	}
+        	else if((type1.equals("int") || type1.equals("double")) && (type2.equals("double") || type2.equals("int"))){
+        		RESULT = (Object)(Double.parseDouble(e1.toString()) + Double.parseDouble(e2.toString()));
+        		System.out.println("double" + RESULT); 
+        	}else{
+        		System.out.println("No se puede operar " + type1 + " con " + type2); 
+        	}
+        :}
         | Expr MINUS Expr
         | Expr MULT Expr
         | Expr DIV Expr
@@ -166,23 +403,27 @@ Expr ::=  LValue EQUAL Expr
         | READINT PARENS
         | READLINE PARENS
         | MALLOC LPAREN Expr RPAREN;
-LValue ::= ID
-        | Expr POINT ID 
+LValue ::= ID:id {: 
+					if(allScopes(id)){
+						RESULT = id; }else{
+							System.out.println("El identificador no existe");
+						} :}
+        | Expr POINT ID:id {:RESULT = id; :} 
         | Expr LBRACE Expr RBRACE;
 Call ::= ID LPAREN Actuals RPAREN
         | Expr POINT ID LPAREN Actuals RPAREN
-        | Expr POINT LibCall LPAREN Actuals RPAREN
+        | Expr POINT LibCall LPAREN  Actuals RPAREN 
     	|ID PARENS
     	|Expr POINT ID PARENS
     	|Expr POINT LibCall PARENS;
 LibCall ::= GETBYTE LPAREN Expr RPAREN
         | SETBYTE LPAREN Expr COMMA Expr RPAREN;
-Actuals ::= Expr ReE 
+Actuals ::= Expr:val {:System.out.println(val); :}   ReE  
 		|
 		;
-Constant ::= INTC 
-        | DOUBLEC
-        | BOOLC
-        | STRINGC
-        | NULL;
+Constant ::= INTC:intc {:RESULT = intc; :}
+        | DOUBLEC:dc {:RESULT = dc;  :}
+        | BOOLC: bc {:RESULT = bc;  :}
+        | STRINGC: sc {:RESULT = sc;  :}
+        | NULL {:RESULT = "null";  :};
  
