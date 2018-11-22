@@ -1,0 +1,94 @@
+id: hola  value: -4  type: int  Ambito: 0 Pertenece: 
+id: hi  value: 2.1  type: double  Ambito: 0 Pertenece: 
+id: bible  value: 0  type: int  Ambito: 0 Pertenece: 
+id: bb  value: "hey"  type: string  Ambito: 0 Pertenece: 
+id: b  value: true  type: bool  Ambito: 0 Pertenece: 
+id: b2  value: false  type: bool  Ambito: 0 Pertenece: 
+id: b3  value: true  type: bool  Ambito: 0 Pertenece: 
+id: b1  value: true  type: bool  Ambito: 0 Pertenece: 
+id: puerVida  value:   type: void  Ambito: 0 Pertenece: 
+id: y  value: 0  type: int  Ambito: 1 Pertenece: 
+id: b4  value: true  type: bool  Ambito: 0 Pertenece: 
+id: b5  value: false  type: bool  Ambito: 0 Pertenece: 
+id: hey  value:   type: void  Ambito: 0 Pertenece: 
+id: sol  value:   type: interface  Ambito: 1 Pertenece: 
+id: luz  value:   type: void  Ambito: 2 Pertenece: 
+id: intensidad  value: 0  type: int  Ambito: 3 Pertenece: luz
+id: anochecer  value:   type: bool  Ambito: 2 Pertenece: 
+id: tiempo  value: 0  type: int  Ambito: 3 Pertenece: anochecer
+id: nublado  value:   type: void  Ambito: 2 Pertenece: 
+id: noche  value:   type: int  Ambito: 2 Pertenece: 
+id: perro  value:   type: class  Ambito: 1 Pertenece: 
+id: hola  value: 0  type: int  Ambito: 2 Pertenece: perro
+id: main  value:   type: void  Ambito: 2 Pertenece: perro
+id: hola  value: 0  type: int  Ambito: 3 Pertenece: main
+id: pelo  value:   type: string  Ambito: 3 Pertenece: main
+id: fresh  value:   type: bool  Ambito: 3 Pertenece: main
+id: those  value:   type: string  Ambito: 3 Pertenece: main
+id: h  value:   type: string  Ambito: 3 Pertenece: main
+id: prueba  value:   type: int[]  Ambito: 3 Pertenece: main
+id: circun  value: 128.8056  type: double  Ambito: 3 Pertenece: main
+id: pi  value: 3.14  type: double  Ambito: 3 Pertenece: 
+id: radio  value: 20.5  type: double  Ambito: 3 Pertenece: 
+id: m1  value: 1  type: int  Ambito: 3 Pertenece: main
+id: m2  value: 0  type: int  Ambito: 3 Pertenece: main
+id: m3  value: 0  type: int  Ambito: 3 Pertenece: main
+id: t  value:   type: bool  Ambito: 3 Pertenece: main
+id: MyParser  value:   type: Parser  Ambito: 3 Pertenece: main
+id: beso  value:   type: string  Ambito: 2 Pertenece: perro
+id: failover  value: 0  type: int  Ambito: 2 Pertenece: perro
+id: perra  value:   type: void  Ambito: 2 Pertenece: perro
+id: animal  value:   type: class  Ambito: 2 Pertenece: 
+id: guapa  value:   type: bool  Ambito: 3 Pertenece: animal
+id: roli  value:   type: perro  Ambito: 3 Pertenece: animal
+id: gato  value:   type: void  Ambito: 3 Pertenece: animal
+id: k  value:   type: string  Ambito: 4 Pertenece: gato
+id: lana  value:   type: string  Ambito: 4 Pertenece: gato
+id: audifono  value: 0  type: int  Ambito: 3 Pertenece: animal
+id: fluffy  value:   type: int  Ambito: 3 Pertenece: animal
+id: holi  value: 0  type: int  Ambito: 4 Pertenece: fluffy
+id: chelsea  value:   type: string  Ambito: 4 Pertenece: fluffy
+id: chino  value:   type: bool  Ambito: 4 Pertenece: fluffy
+id: hello  value: 0  type: int  Ambito: 4 Pertenece: 
+id: pepsi  value:   type: bool  Ambito: 3 Pertenece: animal
+id: pie  value:   type: string  Ambito: 2 Pertenece: 
+id: sol  value:   type: interface  Ambito: 2 Pertenece: 
+id: luz  value:   type: void  Ambito: 3 Pertenece: 
+id: intensidad  value: 0  type: int  Ambito: 4 Pertenece: luz
+id: anochecer  value:   type: bool  Ambito: 3 Pertenece: 
+id: tiempo  value: 0  type: int  Ambito: 4 Pertenece: anochecer
+id: nublado  value:   type: void  Ambito: 3 Pertenece: 
+id: noche  value:   type: int  Ambito: 3 Pertenece: 
+id: perro  value:   type: class  Ambito: 2 Pertenece: 
+id: main  value:   type: void  Ambito: 3 Pertenece: perro
+id: hola  value: 0  type: int  Ambito: 4 Pertenece: main
+id: pelo  value:   type: string  Ambito: 4 Pertenece: main
+id: fresh  value:   type: bool  Ambito: 4 Pertenece: main
+id: those  value:   type: string  Ambito: 4 Pertenece: main
+id: h  value:   type: string  Ambito: 4 Pertenece: main
+id: prueba  value:   type: int[]  Ambito: 4 Pertenece: main
+id: circun  value: 0  type: double  Ambito: 4 Pertenece: main
+id: pi  value: 0  type: double  Ambito: 4 Pertenece: 
+id: radio  value: 0  type: double  Ambito: 4 Pertenece: 
+id: m1  value: 0  type: int  Ambito: 4 Pertenece: main
+id: m2  value: 0  type: int  Ambito: 4 Pertenece: main
+id: m3  value: 0  type: int  Ambito: 4 Pertenece: main
+id: t  value:   type: bool  Ambito: 4 Pertenece: main
+id: MyParser  value:   type: Parser  Ambito: 4 Pertenece: main
+id: beso  value:   type: string  Ambito: 3 Pertenece: perro
+id: failover  value: 0  type: int  Ambito: 3 Pertenece: perro
+id: perra  value:   type: void  Ambito: 3 Pertenece: perro
+id: animal  value:   type: class  Ambito: 3 Pertenece: 
+id: guapa  value:   type: bool  Ambito: 4 Pertenece: animal
+id: roli  value:   type: perro  Ambito: 4 Pertenece: animal
+id: gato  value:   type: void  Ambito: 4 Pertenece: animal
+id: k  value:   type: string  Ambito: 5 Pertenece: gato
+id: lana  value:   type: string  Ambito: 5 Pertenece: gato
+id: audifono  value: 0  type: int  Ambito: 4 Pertenece: animal
+id: fluffy  value:   type: int  Ambito: 4 Pertenece: animal
+id: holi  value: 0  type: int  Ambito: 5 Pertenece: fluffy
+id: chelsea  value:   type: string  Ambito: 5 Pertenece: fluffy
+id: chino  value:   type: bool  Ambito: 5 Pertenece: fluffy
+id: hello  value: 0  type: int  Ambito: 5 Pertenece: 
+id: pepsi  value:   type: bool  Ambito: 4 Pertenece: animal
+id: pie  value:   type: string  Ambito: 3 Pertenece: 

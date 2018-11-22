@@ -1,0 +1,214 @@
+		int hola;
+		double hi; 
+		const int bible; 
+		string bb; 
+		bool b; 
+		bool b2; 
+		bool b3; 
+		bool b1; 
+		void puerVida(){
+			int y; 
+			y = 0; 
+			b = (12 < 5 || y <= 0);
+			b3 = hi <= hola;
+			bb = "hey"; 
+			bible = hola +"1"; 
+			hi = 4+ 2.2; 
+			hola = 70 / 2; 
+			hola =  8 % 5; 
+			hi = 4 % 2; 
+			hola = -4;
+			hi = 2.1; 
+			
+			hola = "perro"; 
+			b = hola < hi;
+			b = hi <= hola;
+			b = 4 <= 4;
+			b2 = hi > hola;
+			b2= 4 >4;
+			
+			b3 = hi >= hola;
+			b3 = 5>= 5;
+			
+			b = "perro" == "perro";
+			b1 = "peerr" == "h";
+			b2 = 2 == 2;
+			b3 = 2.1 == 2.1;
+			b3 = b == true;
+			
+		}
+		
+		bool b4;
+		bool b5;
+		void hey(){
+			
+			b = "perro" == "perro";
+			b1 = "peerr" != "j";
+			b2 = 2 != 2;
+			b3 = 2.1 != 2.1;
+			b3 = b != false;
+			
+			b3 = false || b;
+			b4 = true || true;
+			
+			b5 = b2 || b2;
+			b5 = !b; 
+			b = !false; 
+		
+		}
+﻿#include <C:\microSQL\suma.txt>
+#include <C:\microSQL\prueba2.txt>
+#include <C:\microSQL\prueba.txt>
+
+	int hola; 
+	
+	interface sol{
+	
+		void luz(int intensidad); 
+		bool anochecer(int tiempo);
+		void nublado();
+		int noche(); 
+		
+	
+	}
+	
+	class perro{
+	
+
+	int hola; 	
+	void main(int hola, string pelo, bool fresh, string those, string h){
+		int[] prueba; 
+		double circun;
+		int circun; 
+		const double pi;
+		const double radio;
+		
+		const double pi; 		
+		int m1;
+		int m2;
+		int m3;
+		bool t;
+		Parser MyParser;
+		bool[] hola; 
+		pi = 3.1416; /*Se guarda la constante pi con valor 3.1416 */
+		radio = 20.5; /* Se guarda la constante radio con valor 20.5 */
+		circun = pi*2*radio; /*Se guarda la variable circun con valor 128.8056*/
+
+		m1=MyParser.f1(69,2.2,"3");
+		m1=MyParser.f1(m3,2.2,hola);
+		pi = 3.14;
+		/*while (m1>10) {
+			for (m2=f1(1,2.2,"3");m2=m2+1;(2)) 
+				Print(m1 * 2);
+			  if (!(m1*2 < m2))
+			{
+		    		break;
+			}
+		}*/
+		if (m2<=m3) m1=1;
+		
+		t = (a1 < y || a1 <= y);
+	}
+	
+	string beso; 
+	int failover; 
+	beso = "eowigjw" + ewgoinenio; 
+	
+	void perra(){
+		main(); 
+	}
+}
+	class animal{
+		bool guapa;
+		perro roli; 
+		void gato(string k){
+			string lana; 
+		}
+		int audifono; 
+		int fluffy(int holi, string chelsea, bool chino){
+			int hello; 
+		}
+		bool pepsi; 
+		
+	
+	}
+	
+	string pie; 
+#include <C:\microSQL\suma.txt>
+#include <C:\microSQL\prueba.txt>
+
+
+	int hola; 
+	
+	interface sol{
+	
+		void luz(int intensidad); 
+		bool anochecer(int tiempo);
+		void nublado();
+		int noche(); 
+		
+	
+	}
+	
+	class perro{
+	
+
+	int hola; 	
+	void main(int hola, string pelo, bool fresh, string those, string h){
+		int[] prueba; 
+		double circun;
+		int circun; 
+		const double pi;
+		const double radio;
+		
+		const double pi; 		
+		int m1;
+		int m2;
+		int m3;
+		bool t;
+		Parser MyParser;
+		bool[] hola; 
+		pi = 3.1416; /*Se guarda la constante pi con valor 3.1416 */
+		radio = 20.5; /* Se guarda la constante radio con valor 20.5 */
+		circun = pi*2*radio; /*Se guarda la variable circun con valor 128.8056*/
+
+		m1=MyParser.f1(69,2.2,"3");
+		m1=MyParser.f1(m3,2.2,hola);
+		pi = 3.14;
+		/*while (m1>10) {
+			for (m2=f1(1,2.2,"3");m2=m2+1;(2)) 
+				Print(m1 * 2);
+			  if (!(m1*2 < m2))
+			{
+		    		break;
+			}
+		}*/
+		if (m2<=m3) m1=1;
+		
+		t = (a1 < y || a1 <= y);
+	}
+	
+	string beso; 
+	int failover; 
+	beso = "eowigjw" + ewgoinenio; 
+	
+	void perra(){
+		main(); 
+	}
+}
+	class animal{
+		bool guapa;
+		perro roli; 
+		void gato(string k){
+			string lana; 
+		}
+		int audifono; 
+		int fluffy(int holi, string chelsea, bool chino){
+			int hello; 
+		}
+		bool pepsi; 
+		
+	
+	}
+	
+	string pie; 
