@@ -11,11 +11,15 @@ public class Symbols {
 	
 
 	public Symbols(String _id, int _scope, String _type) { 
-		identifier = _id; 
+		
+		
+		identifier = _id;
 		scope = _scope; 
 		type = _type; 
 		value = ""; 
-		declaration = false; 	
+		declaration = false;
+		
+		
 	}
 }
 

@@ -78,6 +78,33 @@ action code {:
 		return "string"; 
 	}
 	
+	boolean tryParseInt(String value) {  
+     try {  
+         Integer.parseInt(value);  
+         return true;  
+      } catch (NumberFormatException e) {  
+         return false;  
+      }  
+	}
+	
+	 boolean tryParseDouble(String value) {  
+     try {  
+         Double.parseDouble(value);  
+         return true;  
+      } catch (NumberFormatException e) {  
+         return false;  
+      }  
+	}
+	
+	 boolean tryParseBool(String value) {  
+     	
+     	if(value.equals("true") || value.equals("false")){
+     		return true; 
+     	}else{
+     		return false; 
+     	}  
+	}
+	
 :}; 
 
 
@@ -113,7 +140,7 @@ non terminal  Variable, FunctionDecl, ClassDecl, InterfaceDecl, Prototype, Expr,
 non terminal  ReP, ReV, RePR, ReVD, ReS, ReE, ReC1, ReC2, ReC3, ReC4, ReIF, RepI;
 non terminal String Type; 
 
-
+precedence left EQUAL;
 precedence left LBRACE, POINT;
 precedence left NEG;
 precedence left MULT, DIV, MOD;
@@ -122,7 +149,6 @@ precedence left LT, LTE, GT, GTE;
 precedence left CMP, NEQ;
 precedence left AND;
 precedence left OR;
-precedence left EQUAL;
 precedence left ELSE, CONST;
 
 /*precedence left PLUS, MINUS;
@@ -159,6 +185,9 @@ Variable ::= Type: type ID:id
 				Symbols aux = new Symbols(id, globalScope, type);
 				if( !table.isEmpty()  && table.get(params).declaration){
 					aux.father = table.get(params).identifier; 
+				}
+				if(type.equals("int") || type.equals("double")){
+					aux.value = "0"; 
 				}
 				table.add(aux); 
 				writeTable(); 
@@ -238,6 +267,9 @@ AConstant ::= CONST:decl Type:type ID:id
 		{: 
 			if(!exist(id)){
 				Symbols aux = new Symbols(id, globalScope, type);
+				if(type.equals("int") || type.equals("double")){
+					aux.value = "0"; 
+				}
 				table.add(aux); 
 			}else{
 				System.out.println("La constante ya existe"); 
@@ -357,47 +389,437 @@ PrintStmt ::= PRINT LPAREN Expr ReE RPAREN SEMICOLON;
 ReE ::= COMMA Expr:val {:System.out.println(val); :} ReE 
 		|
 		; 
-Expr ::=  LValue:val EQUAL Expr:e1 {:
-				RESULT = e1; 
-				System.out.println(RESULT); 
+Expr ::=  LValue:val EQUAL Expr:e {:
+				System.out.println(val); 
+				RESULT = e; 
+				if(e != null){
+					if((getType(e).equals("double") && getVarType(val.toString()).equals("int")) || !(getType(e).equals(getVarType(val.toString())))){
+						System.out.println("No se puede convertir de " + getType(e) + " a " + getVarType(val.toString()));
+					}else{
+						table.get(symPos(val.toString())).value = e.toString();						 
+					}
+				}
+				writeTable(); 
+				System.out.println(val +" = " + String.valueOf(RESULT)); 
 			:}
         | Constant:cons {:RESULT = cons; :}
-        | LValue:val  {:System.out.println(val); RESULT = val; :}
+        | LValue:val  {:RESULT = val; :}
         | THIS
         | Call
         | LPAREN Expr RPAREN
         | Expr:e1 PLUS Expr:e2{:
         	String type1 = getType(e1); 
         	String type2 = getType(e2); 
-			System.out.println(type1 + type2); 
         	if(type1.equals("string") && type2.equals("string")){
-        		RESULT = e1.toString().substring(1, e1.toString().length() -1) + e2.toString().substring(1, e2.toString().length() -1);         		
+        		if(e1.toString().endsWith("\"")){
+        			e1 = (Object)(e1.toString().substring(1, e1.toString().length() -1));
+        		}else{
+        			e1 = (Object)(table.get(symPos(e1.toString())).value);
+        		}
+        		if(e2.toString().endsWith("\"")){
+        			e2 = (Object)(e2.toString().substring(1, e2.toString().length() -1)); 
+        		}else{
+        			e2 = (Object)(table.get(symPos(e2.toString())).value);
+        		}
+        		RESULT = e1.toString() + e2.toString();         		
         		System.out.println("string" + RESULT); 
         	}else if(type1.equals("int") && type2.equals("int")){
+        		if(!tryParseInt(e1.toString())){
+        			e1 = (Object)(Integer.parseInt(table.get(symPos(e1.toString())).value)); 
+        		}
+        		if(!tryParseInt(e2.toString())){
+        			e2 = (Object)(Integer.parseInt(table.get(symPos(e2.toString())).value)); 
+        		}
         		RESULT = (Object)(Integer.parseInt(e1.toString()) + Integer.parseInt(e2.toString())); 
         		System.out.println("int" + RESULT); 
         	}
         	else if((type1.equals("int") || type1.equals("double")) && (type2.equals("double") || type2.equals("int"))){
+        		if(!tryParseDouble(e1.toString())){
+        			e1 = (Object)(Double.parseDouble(table.get(symPos(e1.toString())).value));
+        		}
+        		if(!tryParseDouble(e2.toString())){
+        			e2 = (Object)(Double.parseDouble(table.get(symPos(e2.toString())).value));
+        		}
         		RESULT = (Object)(Double.parseDouble(e1.toString()) + Double.parseDouble(e2.toString()));
         		System.out.println("double" + RESULT); 
         	}else{
         		System.out.println("No se puede operar " + type1 + " con " + type2); 
         	}
         :}
-        | Expr MINUS Expr
-        | Expr MULT Expr
-        | Expr DIV Expr
-        | Expr MOD Expr
-        | MINUS Expr
-        | Expr LT Expr
-        | Expr LTE Expr
-        | Expr GT Expr
-        | Expr GTE Expr
-        | Expr CMP Expr
-        | Expr NEQ Expr
-        | Expr AND Expr
-        | Expr OR Expr
-        | NEG Expr
+        | Expr:e1 MINUS Expr:e2 {:
+        	String type1 = getType(e1); 
+        	String type2 = getType(e2); 
+			if(type1.equals("int") && type2.equals("int")){
+        		if(!tryParseInt(e1.toString())){
+        			e1 = (Object)(Integer.parseInt(table.get(symPos(e1.toString())).value)); 
+        		}
+        		if(!tryParseInt(e2.toString())){
+        			e2 = (Object)(Integer.parseInt(table.get(symPos(e2.toString())).value)); 
+        		}
+        		RESULT = (Object)(Integer.parseInt(e1.toString()) - Integer.parseInt(e2.toString())); 
+        		System.out.println("int" + RESULT); 
+        	}
+        	else if((type1.equals("int") || type1.equals("double")) && (type2.equals("double") || type2.equals("int"))){
+        		if(!tryParseDouble(e1.toString())){
+        			e1 = (Object)(Double.parseDouble(table.get(symPos(e1.toString())).value));
+        		}
+        		if(!tryParseDouble(e2.toString())){
+        			e2 = (Object)(Double.parseDouble(table.get(symPos(e2.toString())).value));
+        		}
+        		RESULT = (Object)(Double.parseDouble(e1.toString()) - Double.parseDouble(e2.toString()));
+        		System.out.println("double" + RESULT); 
+        	}else{
+        		System.out.println("No se puede operar " + type1 + " con " + type2); 
+        	}
+        :}
+        | Expr:e1 MULT Expr:e2 {:
+        	String type1 = getType(e1); 
+        	String type2 = getType(e2); 
+			if(type1.equals("int") && type2.equals("int")){
+        		if(!tryParseInt(e1.toString())){
+        			e1 = (Object)(Integer.parseInt(table.get(symPos(e1.toString())).value)); 
+        		}
+        		if(!tryParseInt(e2.toString())){
+        			e2 = (Object)(Integer.parseInt(table.get(symPos(e2.toString())).value)); 
+        		}
+        		RESULT = (Object)(Integer.parseInt(e1.toString()) * Integer.parseInt(e2.toString())); 
+        		System.out.println("int" + RESULT); 
+        	}
+        	else if((type1.equals("int") || type1.equals("double")) && (type2.equals("double") || type2.equals("int"))){
+        		if(!tryParseDouble(e1.toString())){
+        			e1 = (Object)(Double.parseDouble(table.get(symPos(e1.toString())).value));
+        		}
+        		if(!tryParseDouble(e2.toString())){
+        			e2 = (Object)(Double.parseDouble(table.get(symPos(e2.toString())).value));
+        		}
+        		RESULT = (Object)(Double.parseDouble(e1.toString()) * Double.parseDouble(e2.toString()));
+        		System.out.println("double" + RESULT); 
+        	}else{
+        		System.out.println("No se puede operar " + type1 + " con " + type2); 
+        	}
+        :}
+        | Expr:e1 DIV Expr:e2{:
+        	String type1 = getType(e1); 
+        	String type2 = getType(e2); 
+        	if(!e2.toString().equals("0")){
+				if(type1.equals("int") && type2.equals("int")){
+	        		if(!tryParseInt(e1.toString())){
+	        			e1 = (Object)(Integer.parseInt(table.get(symPos(e1.toString())).value)); 
+	        		}
+	        		if(!tryParseInt(e2.toString())){
+	        			e2 = (Object)(Integer.parseInt(table.get(symPos(e2.toString())).value)); 
+	        		}
+	        		RESULT = (Object)(Integer.parseInt(e1.toString()) / Integer.parseInt(e2.toString())); 
+	        		System.out.println("int" + RESULT); 
+	        	}
+	        	else if((type1.equals("int") || type1.equals("double")) && (type2.equals("double") || type2.equals("int"))){
+	        		if(!tryParseDouble(e1.toString())){
+	        			e1 = (Object)(Double.parseDouble(table.get(symPos(e1.toString())).value));
+	        		}
+	        		if(!tryParseDouble(e2.toString())){
+	        			e2 = (Object)(Double.parseDouble(table.get(symPos(e2.toString())).value));
+	        		}
+	        		RESULT = (Object)(Double.parseDouble(e1.toString()) / Double.parseDouble(e2.toString()));
+	        		System.out.println("double" + RESULT); 
+	        	}else{
+	        		System.out.println("No se puede operar " + type1 + " con " + type2); 
+	        	}
+        	}else{
+        	
+    			System.out.println("La division sobre cero no esta definida"); 
+        	}
+        :}
+        
+        | Expr:e1 MOD Expr:e2{:
+        	String type1 = getType(e1); 
+        	String type2 = getType(e2); 
+			if(type1.equals("int") && type2.equals("int")){
+        		if(!tryParseInt(e1.toString())){
+        			e1 = (Object)(Integer.parseInt(table.get(symPos(e1.toString())).value)); 
+        		}
+        		if(!tryParseInt(e2.toString())){
+        			e2 = (Object)(Integer.parseInt(table.get(symPos(e2.toString())).value)); 
+        		}
+        		RESULT = (Object)(Integer.parseInt(e1.toString()) % Integer.parseInt(e2.toString())); 
+        		System.out.println("int" + RESULT); 
+        	}
+        	else if((type1.equals("int") || type1.equals("double")) && (type2.equals("double") || type2.equals("int"))){
+        		if(!tryParseDouble(e1.toString())){
+        			e1 = (Object)(Double.parseDouble(table.get(symPos(e1.toString())).value));
+        		}
+        		if(!tryParseDouble(e2.toString())){
+        			e2 = (Object)(Double.parseDouble(table.get(symPos(e2.toString())).value));
+        		}
+        		RESULT = (Object)(Double.parseDouble(e1.toString()) % Double.parseDouble(e2.toString()));
+        		System.out.println("double" + RESULT); 
+        	}else{
+        		System.out.println("No se puede operar " + type1 + " con " + type2); 
+        	}
+        :}
+        | MINUS Expr:e1{:
+        	String type1 = getType(e1); 
+			if(type1.equals("int")){
+        		if(!tryParseInt(e1.toString())){
+        			e1 = (Object)(Integer.parseInt(table.get(symPos(e1.toString())).value)); 
+        		}
+        		RESULT = (Object)(-Integer.parseInt(e1.toString())); 
+        		System.out.println("int" + RESULT); 
+        	}
+        	else if(type1.equals("double")){
+        		if(!tryParseDouble(e1.toString())){
+        			e1 = (Object)(Double.parseDouble(table.get(symPos(e1.toString())).value));
+        		}
+        		RESULT = (Object)(-Double.parseDouble(e1.toString()));
+        		System.out.println("double" + RESULT); 
+        	}else{
+        		System.out.println("El operando  " + type1  + " no es un numero"); 
+        	}
+        :}
+        | Expr:e1 LT Expr:e2{:
+        	String type1 = getType(e1); 
+        	String type2 = getType(e2); 
+			if(type1.equals("int") && type2.equals("int")){
+        		if(!tryParseInt(e1.toString())){
+        			e1 = (Object)(Integer.parseInt(table.get(symPos(e1.toString())).value)); 
+        		}
+        		if(!tryParseInt(e2.toString())){
+        			e2 = (Object)(Integer.parseInt(table.get(symPos(e2.toString())).value)); 
+        		}
+        		RESULT = (Object)(Integer.parseInt(e1.toString()) < Integer.parseInt(e2.toString())); 
+        		System.out.println("int" + RESULT); 
+        	}
+        	else if((type1.equals("int") || type1.equals("double")) && (type2.equals("double") || type2.equals("int"))){
+        		if(!tryParseDouble(e1.toString())){
+        			e1 = (Object)(Double.parseDouble(table.get(symPos(e1.toString())).value));
+        		}
+        		if(!tryParseDouble(e2.toString())){
+        			e2 = (Object)(Double.parseDouble(table.get(symPos(e2.toString())).value));
+        		}
+        		RESULT = (Object)(Double.parseDouble(e1.toString()) < Double.parseDouble(e2.toString()));
+        		System.out.println("double" + RESULT); 
+        	}else{
+        		System.out.println("No se puede operar " + type1 + " con " + type2); 
+        	}
+        :}
+        | Expr:e1 LTE Expr:e2{:
+        	String type1 = getType(e1); 
+        	String type2 = getType(e2); 
+			if(type1.equals("int") && type2.equals("int")){
+        		if(!tryParseInt(e1.toString())){
+        			e1 = (Object)(Integer.parseInt(table.get(symPos(e1.toString())).value)); 
+        		}
+        		if(!tryParseInt(e2.toString())){
+        			e2 = (Object)(Integer.parseInt(table.get(symPos(e2.toString())).value)); 
+        		}
+        		RESULT = (Object)(Integer.parseInt(e1.toString()) <= Integer.parseInt(e2.toString())); 
+        		System.out.println("int" + RESULT); 
+        	}
+        	else if((type1.equals("int") || type1.equals("double")) && (type2.equals("double") || type2.equals("int"))){
+        		if(!tryParseDouble(e1.toString())){
+        			e1 = (Object)(Double.parseDouble(table.get(symPos(e1.toString())).value));
+        		}
+        		if(!tryParseDouble(e2.toString())){
+        			e2 = (Object)(Double.parseDouble(table.get(symPos(e2.toString())).value));
+        		}
+        		RESULT = (Object)(Double.parseDouble(e1.toString()) <= Double.parseDouble(e2.toString()));
+        		System.out.println("double" + RESULT); 
+        	}else{
+        		System.out.println("No se puede operar " + type1 + " con " + type2); 
+        	}
+        :}
+        | Expr:e1 GT Expr:e2{:
+        	String type1 = getType(e1); 
+        	String type2 = getType(e2); 
+			if(type1.equals("int") && type2.equals("int")){
+        		if(!tryParseInt(e1.toString())){
+        			e1 = (Object)(Integer.parseInt(table.get(symPos(e1.toString())).value)); 
+        		}
+        		if(!tryParseInt(e2.toString())){
+        			e2 = (Object)(Integer.parseInt(table.get(symPos(e2.toString())).value)); 
+        		}
+        		RESULT = (Object)(Integer.parseInt(e1.toString()) > Integer.parseInt(e2.toString())); 
+        		System.out.println("int" + RESULT); 
+        	}
+        	else if((type1.equals("int") || type1.equals("double")) && (type2.equals("double") || type2.equals("int"))){
+        		if(!tryParseDouble(e1.toString())){
+        			e1 = (Object)(Double.parseDouble(table.get(symPos(e1.toString())).value));
+        		}
+        		if(!tryParseDouble(e2.toString())){
+        			e2 = (Object)(Double.parseDouble(table.get(symPos(e2.toString())).value));
+        		}
+        		RESULT = (Object)(Double.parseDouble(e1.toString()) > Double.parseDouble(e2.toString()));
+        		System.out.println("double" + RESULT); 
+        	}else{
+        		System.out.println("No se puede operar " + type1 + " con " + type2); 
+        	}
+        :}
+        | Expr:e1 GTE Expr:e2{:
+        	String type1 = getType(e1); 
+        	String type2 = getType(e2); 
+			if(type1.equals("int") && type2.equals("int")){
+        		if(!tryParseInt(e1.toString())){
+        			e1 = (Object)(Integer.parseInt(table.get(symPos(e1.toString())).value)); 
+        		}
+        		if(!tryParseInt(e2.toString())){
+        			e2 = (Object)(Integer.parseInt(table.get(symPos(e2.toString())).value)); 
+        		}
+        		RESULT = (Object)(Integer.parseInt(e1.toString()) >= Integer.parseInt(e2.toString())); 
+        		System.out.println("int" + RESULT); 
+        	}
+        	else if((type1.equals("int") || type1.equals("double")) && (type2.equals("double") || type2.equals("int"))){
+        		if(!tryParseDouble(e1.toString())){
+        			e1 = (Object)(Double.parseDouble(table.get(symPos(e1.toString())).value));
+        		}
+        		if(!tryParseDouble(e2.toString())){
+        			e2 = (Object)(Double.parseDouble(table.get(symPos(e2.toString())).value));
+        		}
+        		RESULT = (Object)(Double.parseDouble(e1.toString()) >= Double.parseDouble(e2.toString()));
+        		System.out.println("double" + RESULT); 
+        	}else{
+        		System.out.println("No se puede operar " + type1 + " con " + type2); 
+        	}
+        :}
+        | Expr:e1 CMP Expr:e2{:
+        	String type1 = getType(e1); 
+        	String type2 = getType(e2); 
+        	if(type1.equals("string") && type2.equals("string")){
+        		if(e1.toString().endsWith("\"")){
+        			e1 = (Object)(e1.toString().substring(1, e1.toString().length() -1));
+        		}else{
+        			e1 = (Object)(table.get(symPos(e1.toString())).value);
+        		}
+        		if(e2.toString().endsWith("\"")){
+        			e2 = (Object)(e2.toString().substring(1, e2.toString().length() -1)); 
+        		}else{
+        			e2 = (Object)(table.get(symPos(e2.toString())).value);
+        		}
+        		RESULT = e1.toString().equals(e2.toString());         		
+        		System.out.println("string" + RESULT); 
+        	}else if(type1.equals("int") && type2.equals("int")){
+        		if(!tryParseInt(e1.toString())){
+        			e1 = (Object)(Integer.parseInt(table.get(symPos(e1.toString())).value)); 
+        		}
+        		if(!tryParseInt(e2.toString())){
+        			e2 = (Object)(Integer.parseInt(table.get(symPos(e2.toString())).value)); 
+        		}
+        		RESULT = (Object)(Integer.parseInt(e1.toString()) == Integer.parseInt(e2.toString())); 
+        		System.out.println("int" + RESULT); 
+        	}
+        	else if((type1.equals("int") || type1.equals("double")) && (type2.equals("double") || type2.equals("int"))){
+        		if(!tryParseDouble(e1.toString())){
+        			e1 = (Object)(Double.parseDouble(table.get(symPos(e1.toString())).value));
+        		}
+        		if(!tryParseDouble(e2.toString())){
+        			e2 = (Object)(Double.parseDouble(table.get(symPos(e2.toString())).value));
+        		}
+        		RESULT = (Object)(Double.parseDouble(e1.toString()) == Double.parseDouble(e2.toString()));
+        		System.out.println("double" + RESULT); 
+        	}else if(type1.equals("bool") && type2.equals("bool") ){
+        		if(!tryParseBool(e1.toString())){
+        			e1 = (Object)(Boolean.parseBoolean(table.get(symPos(e1.toString())).value)); 
+        		}
+        		if(!tryParseBool(e2.toString())){
+        			e2 = (Object)(Boolean.parseBoolean(table.get(symPos(e2.toString())).value)); 
+        		}
+        		RESULT = (Object)(Boolean.parseBoolean(e1.toString()) == Boolean.parseBoolean(e2.toString())); 
+        		System.out.println("bool" + RESULT); 
+        	
+        	}
+        	else{
+        		System.out.println("No se puede operar " + type1 + " con " + type2); 
+        	}
+        :}
+        | Expr:e1 NEQ Expr:e2{:
+        	String type1 = getType(e1); 
+        	String type2 = getType(e2); 
+        	if(type1.equals("string") && type2.equals("string")){
+        		if(e1.toString().endsWith("\"")){
+        			e1 = (Object)(e1.toString().substring(1, e1.toString().length() -1));
+        		}else{
+        			e1 = (Object)(table.get(symPos(e1.toString())).value);
+        		}
+        		if(e2.toString().endsWith("\"")){
+        			e2 = (Object)(e2.toString().substring(1, e2.toString().length() -1)); 
+        		}else{
+        			e2 = (Object)(table.get(symPos(e2.toString())).value);
+        		}
+        		RESULT = !e1.toString().equals(e2.toString());         		
+        		System.out.println("string" + RESULT); 
+        	}else if(type1.equals("int") && type2.equals("int")){
+        		if(!tryParseInt(e1.toString())){
+        			e1 = (Object)(Integer.parseInt(table.get(symPos(e1.toString())).value)); 
+        		}
+        		if(!tryParseInt(e2.toString())){
+        			e2 = (Object)(Integer.parseInt(table.get(symPos(e2.toString())).value)); 
+        		}
+        		RESULT = (Object)(Integer.parseInt(e1.toString()) != Integer.parseInt(e2.toString())); 
+        		System.out.println("int" + RESULT); 
+        	}
+        	else if((type1.equals("int") || type1.equals("double")) && (type2.equals("double") || type2.equals("int"))){
+        		if(!tryParseDouble(e1.toString())){
+        			e1 = (Object)(Double.parseDouble(table.get(symPos(e1.toString())).value));
+        		}
+        		if(!tryParseDouble(e2.toString())){
+        			e2 = (Object)(Double.parseDouble(table.get(symPos(e2.toString())).value));
+        		}
+        		RESULT = (Object)(Double.parseDouble(e1.toString()) != Double.parseDouble(e2.toString()));
+        		System.out.println("double" + RESULT); 
+        	}else if(type1.equals("bool") && type2.equals("bool") ){
+        		if(!tryParseBool(e1.toString())){
+        			e1 = (Object)(Boolean.parseBoolean(table.get(symPos(e1.toString())).value)); 
+        		}
+        		if(!tryParseBool(e2.toString())){
+        			e2 = (Object)(Boolean.parseBoolean(table.get(symPos(e2.toString())).value)); 
+        		}
+        		RESULT = (Object)(Boolean.parseBoolean(e1.toString()) != Boolean.parseBoolean(e2.toString())); 
+        		System.out.println("bool" + RESULT); 
+        	
+        	}
+        	else{
+        		System.out.println("No se puede operar " + type1 + " con " + type2); 
+        	}
+        :}
+        | Expr:e1 AND Expr:e2{:
+        	String type1 = getType(e1); 
+        	String type2 = getType(e2); 
+			if(type1.equals("bool") && type2.equals("bool")){
+				if(!tryParseBool(e1.toString())){
+        			e1 = (Object)(Boolean.parseBoolean(table.get(symPos(e1.toString())).value)); 
+        		}
+        		if(!tryParseBool(e2.toString())){
+        			e2 = (Object)(Boolean.parseBoolean(table.get(symPos(e2.toString())).value)); 
+        		}
+        		RESULT = (Object)(Boolean.parseBoolean(e1.toString()) && Boolean.parseBoolean(e2.toString()));  
+        	}else{
+        		System.out.println("No se puede operar " + type1 + " con " + type2); 
+        	}
+        :}
+        | Expr:e1 OR Expr:e2{:
+        	String type1 = getType(e1); 
+        	String type2 = getType(e2); 
+			if(type1.equals("bool") && type2.equals("bool")){
+				if(!tryParseBool(e1.toString())){
+        			e1 = (Object)(Boolean.parseBoolean(table.get(symPos(e1.toString())).value)); 
+        		}
+        		if(!tryParseBool(e2.toString())){
+        			e2 = (Object)(Boolean.parseBoolean(table.get(symPos(e2.toString())).value)); 
+        		}
+        		RESULT = (Object)(Boolean.parseBoolean(e1.toString()) || Boolean.parseBoolean(e2.toString()));  
+        	}else{
+        		System.out.println("No se puede operar " + type1 + " con " + type2); 
+        	}
+        :}
+        | NEG Expr:e1{:
+        	String type1 = getType(e1); 
+			if(type1.equals("bool")){
+				if(!tryParseBool(e1.toString())){
+        			e1 = (Object)(Boolean.parseBoolean(table.get(symPos(e1.toString())).value)); 
+        		}
+        		RESULT = (Object)(!Boolean.parseBoolean(e1.toString()));  
+        	}else{
+        		System.out.println("No se puede operar ! con " + type1 ); 
+        	}
+        :}
         | NEW LPAREN ID RPAREN
         | NEWARRAY LPAREN Expr COMMA Type RPAREN
         | READINT PARENS
@@ -424,6 +846,6 @@ Actuals ::= Expr:val {:System.out.println(val); :}   ReE
 Constant ::= INTC:intc {:RESULT = intc; :}
         | DOUBLEC:dc {:RESULT = dc;  :}
         | BOOLC: bc {:RESULT = bc;  :}
-        | STRINGC: sc {:RESULT = sc;  :}
+        | STRINGC: sc {:RESULT = sc; :}
         | NULL {:RESULT = "null";  :};
  

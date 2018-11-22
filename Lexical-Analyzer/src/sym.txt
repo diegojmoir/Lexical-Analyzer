@@ -1,3 +1,12 @@
-id: hola  value:   type: int  Ambito: 0 Pertenece: null
-id: b  value:   type: bool  Ambito: 0 Pertenece: null
+id: hola  value: -4  type: int  Ambito: 0 Pertenece: null
+id: hi  value: 2.1  type: double  Ambito: 0 Pertenece: null
+id: bible  value: 0  type: int  Ambito: 0 Pertenece: null
+id: bb  value: "hey"  type: string  Ambito: 0 Pertenece: null
+id: b  value: true  type: bool  Ambito: 0 Pertenece: null
+id: b2  value: false  type: bool  Ambito: 0 Pertenece: null
+id: b3  value: true  type: bool  Ambito: 0 Pertenece: null
+id: b1  value: true  type: bool  Ambito: 0 Pertenece: null
 id: puerVida  value:   type: void  Ambito: 0 Pertenece: null
+id: b4  value: true  type: bool  Ambito: 0 Pertenece: null
+id: b5  value: false  type: bool  Ambito: 0 Pertenece: null
+id: hey  value:   type: void  Ambito: 0 Pertenece: null
